@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Theory, measured. — EF LAB V6.5</title>
+    <meta
+      name="description"
+      content="An econ & finance lab you can run. Study only, not investment advice. eugenefinance.tech"
+    />
+    <meta name="theme-color" content="#070a08" />
+    <meta property="og:title" content="Theory, measured. — EF LAB V6.5" />
+    <meta
+      property="og:description"
+      content="An econ & finance lab you can run. Study only, not investment advice."
+    />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Theory, measured. — EF LAB V6.5" />
+    <meta
+      name="twitter:description"
+      content="An econ & finance lab you can run. Study only, not investment advice."
+    />
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400&family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <script type="module" crossorigin src="./assets/index-B3U9-pHQ.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-Dh8OwROm.css">
+  </head>
+  <body>
+    <div class="grain" aria-hidden="true"></div>
+    <div class="frame" aria-hidden="true">
+      <i class="corner tl"></i>
+      <i class="corner tr"></i>
+      <i class="corner bl"></i>
+      <i class="corner br"></i>
+    </div>
+
+    <header class="hero">
+      <canvas id="paths" class="hero-canvas" aria-hidden="true"></canvas>
+      <div class="vignette" aria-hidden="true"></div>
+
+      <div class="hero-mast">
+        <p class="kicker gold">The Quantitative Report · Vol. 00</p>
+        <p class="kicker cream dim">EF LAB V6.5</p>
+      </div>
+
+      <div class="hero-copy">
+        <h1>Theory, measured.</h1>
+        <p class="lede">An econ &amp; finance lab you can run.</p>
+        <p class="hero-note">
+          Eight hundred geometric Brownian paths. σ moves the rain.
+        </p>
+      </div>
+
+      <div class="hero-foot">
+        <p>EF LAB V6.5</p>
+        <p class="italic">eugenefinance.tech</p>
+      </div>
+    </header>
+
+    <main>
+      <section class="desk" id="desk">
+        <div class="desk-head">
+          <p class="kicker gold">01 / The smile</p>
+          <h2>Price the smile.</h2>
+          <p class="section-dek">From Black–Scholes to implied vol.</p>
+        </div>
+
+        <div class="desk-grid">
+          <figure class="surface-stage">
+            <div id="surface" class="surface-host" role="img" aria-label="Orbitable implied volatility surface"></div>
+            <figcaption>
+              Drag to orbit. Navy is calm, orange is the wing.
+              The surface lifts with σ.
+            </figcaption>
+          </figure>
+
+          <aside class="lab">
+            <p class="kicker gold">02 / The desk</p>
+            <h3>Black–Scholes, live.</h3>
+            <p class="lab-note">
+              Closed form for a European claim. Vega per vol point. Theta per day.
+              Study only.
+            </p>
+
+            <form id="sliders" class="sliders" autocomplete="off"></form>
+
+            <div class="quotes">
+              <div class="quote">
+                <span class="quote-label">Call</span>
+                <span class="quote-val" data-quote="call">—</span>
+              </div>
+              <div class="quote">
+                <span class="quote-label">Put</span>
+                <span class="quote-val" data-quote="put">—</span>
+              </div>
+            </div>
+
+            <dl class="greeks">
+              <div>
+                <dt>Δ call</dt>
+                <dd data-g="deltaCall">—</dd>
+              </div>
+              <div>
+                <dt>Δ put</dt>
+                <dd data-g="deltaPut">—</dd>
+              </div>
+              <div>
+                <dt>Γ</dt>
+                <dd data-g="gamma">—</dd>
+              </div>
+              <div>
+                <dt>ν</dt>
+                <dd data-g="vega">—</dd>
+              </div>
+              <div>
+                <dt>Θ call</dt>
+                <dd data-g="thetaCall">—</dd>
+              </div>
+              <div>
+                <dt>Θ put</dt>
+                <dd data-g="thetaPut">—</dd>
+              </div>
+            </dl>
+          </aside>
+        </div>
+      </section>
+
+      <section class="three" id="three">
+        <div class="three-head">
+          <p class="kicker gold">03 / Today’s three</p>
+          <h2>A rotating syllabus.</h2>
+          <p class="section-dek">
+            Beginner, core, frontier — chosen by the calendar, not a server.
+            <span data-lab-date></span>
+          </p>
+        </div>
+        <div class="three-grid">
+          <article class="track" data-track="beginner">
+            <p class="track-kicker">Beginner</p>
+            <h3 class="track-title"></h3>
+            <p class="track-dek"></p>
+          </article>
+          <article class="track" data-track="core">
+            <p class="track-kicker">Core</p>
+            <h3 class="track-title"></h3>
+            <p class="track-dek"></p>
+          </article>
+          <article class="track" data-track="frontier">
+            <p class="track-kicker">Frontier</p>
+            <h3 class="track-title"></h3>
+            <p class="track-dek"></p>
+          </article>
+        </div>
+      </section>
+
+      <section class="cta" id="lab">
+        <p class="kicker gold">Enter the lab</p>
+        <h2>The rest of the instruments are on the bench.</h2>
+        <p class="section-dek">
+          Theory, measured. An econ &amp; finance lab you can run.
+        </p>
+        <a class="cta-link" href="https://eugenefinance.tech/">eugenefinance.tech</a>
+        <p class="disclaimer">Study only. Not investment advice.</p>
+      </section>
+    </main>
+
+    <footer class="colophon">
+      <p>EF LAB V6.5</p>
+      <p class="italic">eugenefinance.tech</p>
+    </footer>
+
+  </body>
+</html>
