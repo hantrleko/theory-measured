@@ -1,0 +1,18 @@
+{
+  "name": "theory-measured",
+  "private": true,
+  "version": "6.5.0",
+  "type": "module",
+  "description": "Cinematic teaser for eugenefinance.tech — EF LAB V6.5",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview --host --port 4173"
+  },
+  "dependencies": {
+    "three": "^0.170.0"
+  },
+  "devDependencies": {
+    "vite": "^6.0.7"
+  }
+}
