@@ -10,14 +10,13 @@ export function createPathRain(canvas, getParams) {
   let colors = [];
   let widths = [];
   let seed = 7;
-  let drawTo = 0;
-  let drawn = 0;
-  let hold = 0;
   let raf = 0;
   let disposed = false;
-  let lastSigma = NaN;
   let lastKey = "";
   let steps = 140;
+  let drops = [];
+  let metrics = { w: 1, h: 1, S: 100, span: 40 };
+  let frame = 0;
 
   function size() {
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -38,84 +37,117 @@ export function createPathRain(canvas, getParams) {
     return 800;
   }
 
+  function mapX(k, w) {
+    return (k / steps) * w;
+  }
+
+  function mapY(px, h, S, span) {
+    return h * (1 - (px - (S - span)) / (2 * span));
+  }
+
+  function strokeRange(from, to) {
+    const { w, h, S, span } = metrics;
+    for (let i = 0; i < paths.length; i += 1) {
+      const y = paths[i];
+      ctx.beginPath();
+      ctx.strokeStyle = colors[i];
+      ctx.lineWidth = widths[i];
+      ctx.moveTo(mapX(from, w), mapY(y[from], h, S, span));
+      for (let k = from + 1; k <= to; k += 1) {
+        ctx.lineTo(mapX(k, w), mapY(y[k], h, S, span));
+      }
+      ctx.stroke();
+    }
+  }
+
   function rebuild(force = false) {
     const { S, sigma, r, T } = getParams();
     const { w, h } = size();
     const key = `${countForWidth(w)}|${w}x${h}|${S}|${sigma.toFixed(3)}|${r.toFixed(3)}|${T.toFixed(3)}`;
     if (!force && key === lastKey) return;
     lastKey = key;
-    lastSigma = sigma;
     const count = countForWidth(w);
     steps = w < 720 ? 90 : 140;
     seed = (seed + 13) >>> 0;
     paths = simulatePaths({ count, steps, S, sigma, r, T, seed });
+    colors = new Array(count);
+    widths = new Array(count);
+    for (let i = 0; i < count; i += 1) {
+      const lane = i % 13;
+      if (lane === 0) {
+        colors[i] = `rgba(${GOLD},0.62)`;
+        widths[i] = 1.2;
+      } else if (lane === 1) {
+        colors[i] = `rgba(${TEAL},0.5)`;
+        widths[i] = 1.1;
+      } else if (lane < 4) {
+        colors[i] = `rgba(${CREAM},0.28)`;
+        widths[i] = 0.85;
+      } else {
+        colors[i] = `rgba(${CREAM},0.11)`;
+        widths[i] = 0.7;
+      }
+    }
+    const span = S * Math.max(0.32, sigma * 3.15 * Math.sqrt(T) + 0.16);
+    metrics = { w, h, S, span };
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.fillStyle = "#070a08";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     size();
-    colors = new Array(count);
-    widths = new Array(count);
-    for (let i = 0; i < count; i += 1) {
-      const lane = i % 17;
-      if (lane === 0) {
-        colors[i] = `rgba(${GOLD},0.55)`;
-        widths[i] = 1.15;
-      } else if (lane === 1) {
-        colors[i] = `rgba(${TEAL},0.42)`;
-        widths[i] = 1.05;
-      } else if (lane < 4) {
-        colors[i] = `rgba(${CREAM},0.22)`;
-        widths[i] = 0.8;
-      } else {
-        colors[i] = `rgba(${CREAM},0.055)`;
-        widths[i] = 0.65;
+    ctx.lineJoin = "round";
+    ctx.lineCap = "round";
+    strokeRange(0, steps);
+    drops = [];
+    const nDrops = Math.min(48, Math.floor(count / 16));
+    for (let i = 0; i < nDrops; i += 1) {
+      drops.push({
+        i: (i * 17 + seed) % count,
+        k: Math.floor((i / nDrops) * steps),
+        hue: i % 3,
+      });
+    }
+  }
+
+  function paintDrops() {
+    const { w, h, S, span } = metrics;
+    const next = [];
+    for (const drop of drops) {
+      const y = paths[drop.i];
+      if (!y) continue;
+      const from = drop.k;
+      const to = Math.min(steps, from + 3);
+      const tone =
+        drop.hue === 0
+          ? `rgba(${GOLD},0.85)`
+          : drop.hue === 1
+            ? `rgba(${TEAL},0.75)`
+            : `rgba(${CREAM},0.7)`;
+      ctx.beginPath();
+      ctx.strokeStyle = tone;
+      ctx.lineWidth = 1.35;
+      ctx.moveTo(mapX(from, w), mapY(y[from], h, S, span));
+      for (let k = from + 1; k <= to; k += 1) {
+        ctx.lineTo(mapX(k, w), mapY(y[k], h, S, span));
+      }
+      ctx.stroke();
+      if (to < steps) next.push({ ...drop, k: to });
+      else {
+        next.push({
+          i: Math.floor(Math.random() * paths.length),
+          k: 0,
+          hue: drop.hue,
+        });
       }
     }
-    drawTo = 2;
-    drawn = 0;
-    hold = 0;
+    drops = next;
   }
 
   function paint() {
-    const { w, h } = size();
-    const { S, sigma, T } = getParams();
     rebuild();
-
     if (!paths.length) return;
-    const span = S * Math.max(0.35, sigma * 3.4 * Math.sqrt(T) + 0.18);
-    const yMin = S - span;
-    const yMax = S + span;
-    const mapX = (k) => (k / steps) * w;
-    const mapY = (px) => h * (1 - (px - yMin) / (yMax - yMin));
-
-    const end = Math.min(steps, Math.floor(drawTo));
-    if (end > drawn) {
-      ctx.lineJoin = "round";
-      ctx.lineCap = "round";
-      for (let i = 0; i < paths.length; i += 1) {
-        const y = paths[i];
-        ctx.beginPath();
-        ctx.strokeStyle = colors[i];
-        ctx.lineWidth = widths[i];
-        ctx.moveTo(mapX(drawn), mapY(y[drawn]));
-        for (let k = drawn + 1; k <= end; k += 1) {
-          ctx.lineTo(mapX(k), mapY(y[k]));
-        }
-        ctx.stroke();
-      }
-      drawn = end;
-    }
-
-    if (end < steps) {
-      drawTo += 1.25 + sigma * 1.8;
-    } else {
-      hold += 1;
-      if (hold > 110) {
-        ctx.fillStyle = "rgba(7, 10, 8, 0.06)";
-        ctx.fillRect(0, 0, w, h);
-        if (hold > 175) rebuild(true);
-      }
-    }
+    frame += 1;
+    if (frame % 100 === 0) strokeRange(0, steps);
+    paintDrops();
   }
 
   function tick() {
@@ -125,9 +157,6 @@ export function createPathRain(canvas, getParams) {
   }
 
   function start() {
-    size();
-    ctx.fillStyle = "#070a08";
-    ctx.fillRect(0, 0, canvas.clientWidth, canvas.clientHeight);
     rebuild(true);
     cancelAnimationFrame(raf);
     raf = requestAnimationFrame(tick);

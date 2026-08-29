@@ -80,9 +80,9 @@ export function priceAndGreeks({ S, K, sigma, r, T }) {
 export function impliedVol(strike, maturity, { S, sigma }) {
   const m = Math.log(strike / S);
   const t = Math.max(maturity, 0.05);
-  const smile = 0.55 * sigma * m * m;
-  const skew = -0.18 * sigma * m * Math.exp(-0.65 * t);
-  const term = 0.035 * (1 - Math.exp(-0.55 * t));
-  const wing = 0.04 * Math.abs(m) * Math.sqrt(t);
-  return Math.min(0.85, Math.max(0.04, sigma + smile + skew + term + wing));
+  const smile = 0.95 * Math.max(sigma, 0.12) * m * m;
+  const skew = -0.22 * sigma * m * Math.exp(-0.55 * t);
+  const term = 0.03 * (1 - Math.exp(-0.5 * t));
+  const wing = 0.055 * Math.abs(m) * Math.sqrt(t);
+  return Math.min(0.88, Math.max(0.04, sigma + smile + skew + term + wing));
 }

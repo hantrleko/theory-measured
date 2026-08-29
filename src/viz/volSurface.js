@@ -28,17 +28,17 @@ const vertexShader = /* glsl */ `
 
 const fragmentShader = /* glsl */ `
   varying float vH;
+  uniform float uMinH;
   uniform float uMaxH;
   void main() {
-    float t = clamp(vH / max(uMaxH, 0.0001), 0.0, 1.0);
-    vec3 navy = vec3(0.035, 0.07, 0.16);
-    vec3 teal = vec3(0.16, 0.78, 0.72);
-    vec3 orange = vec3(0.93, 0.42, 0.12);
+    float t = clamp((vH - uMinH) / max(uMaxH - uMinH, 0.0001), 0.0, 1.0);
+    vec3 navy = vec3(0.04, 0.08, 0.18);
+    vec3 teal = vec3(0.18, 0.82, 0.74);
+    vec3 orange = vec3(0.95, 0.44, 0.12);
     vec3 col = mix(navy, teal, smoothstep(0.0, 0.42, t));
-    col = mix(col, orange, smoothstep(0.40, 1.0, t));
-    float rim = pow(t, 1.6);
-    col += vec3(0.18, 0.06, 0.02) * rim;
-    gl_FragColor = vec4(col, 0.94);
+    col = mix(col, orange, smoothstep(0.38, 1.0, t));
+    col += vec3(0.2, 0.07, 0.02) * pow(t, 1.55);
+    gl_FragColor = vec4(col, 0.96);
   }
 `;
 
@@ -121,7 +121,10 @@ export function createVolSurface(host, getParams) {
   const mat = new THREE.ShaderMaterial({
     vertexShader,
     fragmentShader,
-    uniforms: { uMaxH: { value: YH } },
+    uniforms: {
+      uMinH: { value: 0 },
+      uMaxH: { value: YH },
+    },
     side: THREE.DoubleSide,
     transparent: true,
     depthWrite: true,
@@ -136,7 +139,7 @@ export function createVolSurface(host, getParams) {
     new THREE.LineBasicMaterial({
       color: 0xe8dcc4,
       transparent: true,
-      opacity: 0.22,
+      opacity: 0.28,
     }),
   );
   scene.add(wire);
@@ -159,6 +162,15 @@ export function createVolSurface(host, getParams) {
     }
     pos.needsUpdate = true;
     geo.computeVertexNormals();
+    let minH = Infinity;
+    let maxH = -Infinity;
+    for (let i = 0; i < pos.count; i += 1) {
+      const y = pos.getY(i);
+      if (y < minH) minH = y;
+      if (y > maxH) maxH = y;
+    }
+    mat.uniforms.uMinH.value = minH;
+    mat.uniforms.uMaxH.value = maxH;
     wire.geometry.dispose();
     wire.geometry = new THREE.WireframeGeometry(geo);
   }
@@ -175,13 +187,14 @@ export function createVolSurface(host, getParams) {
 
   let raf = 0;
   let disposed = false;
-  let lastSigma = NaN;
+  let lastSig = "";
 
   function tick() {
     if (disposed) return;
-    const sigma = getParams().sigma;
-    if (sigma !== lastSigma) {
-      lastSigma = sigma;
+    const p = getParams();
+    const sig = `${p.sigma}|${p.S}`;
+    if (sig !== lastSig) {
+      lastSig = sig;
       displace();
     }
     controls.update();
